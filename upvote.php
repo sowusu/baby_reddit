@@ -2,6 +2,7 @@
 session_start();
 $username = $_SESSION['username'];
 
+//open myswl session
 $mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 if($mysqli->connect_errno){
@@ -9,6 +10,7 @@ if($mysqli->connect_errno){
 	exit;
 } 
 
+//if it is a comment then upvote it as a comment
 if(isset($_GET['commentid'])){
 
 	$commentid=$_GET['commentid'];
@@ -26,7 +28,7 @@ if(isset($_GET['commentid'])){
 	die();
 
 }
-else{
+else{//otherwise upvote it as a story
 
 	$storyid=$_GET['storyid'];
 

@@ -2,6 +2,7 @@
 session_start();
 $username = $_SESSION['username'];
 
+//begin mysql session
 $mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 if($mysqli->connect_errno){
@@ -9,6 +10,7 @@ if($mysqli->connect_errno){
 	exit;
 } 
 
+//get the information about story
 $storyid = $_GET['storyid'];
 if(!empty($_GET['storyname'])){
 	$storyname=$_GET['storyname'];
@@ -30,14 +32,18 @@ else{
 	$storycontent=null;
 }
 
-//temp until we get users table
-$creator_id = $_SESSION['userid'];
-
-$stmt = $mysqli->query("update stories set story_title='".$storyname."', story_link='".$storylink."', story_content='".$storycontent."' where story_id=".$storyid);
+//update the story
+$stmt = $mysqli->prepare("update stories set story_title=?, story_link=?, story_content=? where story_id=".$storyid);
 if(!$stmt){
 	printf("Query Prep Failed: %s\n", $mysqli->error);
 	exit;
 }
+
+$stmt->bind_param('sss', $storyname, $storylink, $storycontent);
+
+$stmt->execute();
+
+$stmt->close();
 
 header('Location: ./mainPage.php');
 die();

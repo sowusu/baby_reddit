@@ -3,12 +3,20 @@
 <head>
         <title> Edit Your Story! </title>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+	<style type="text/css">
+	body {
+                background-image: url("writing.png");
+                background-size: 100%;
+                color: orange;
+        }
+	</style>
 </head>
 <body>
 <?php
 session_start();
 $username = $_SESSION['username'];
 
+//start mysql session
 $mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 if($mysqli->connect_errno){
@@ -16,12 +24,14 @@ if($mysqli->connect_errno){
         exit;
 }
 
+//get story we are editing
 $storyid = $_GET['storyid'];
 
 $name;
 $link;
 $content;
 
+//get the content that is currently in the story so the user can see it to change it
 $stmt = $mysqli->prepare("select story_title, story_link, story_content from stories where story_id=".$storyid);
 
 if(!$stmt){
@@ -35,6 +45,7 @@ $stmt->bind_result($name, $link, $content);
 
 $stmt->fetch();
 
+//give user options to change their story
 echo "<form action=\"logout.php\">";
 echo         "<input type=\"submit\" name=\"logout\" value=\"Logout\">";
 echo "</form>";

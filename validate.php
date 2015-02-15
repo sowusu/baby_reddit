@@ -12,9 +12,8 @@
 	<?php
 		include 'hashpassword.php';
 
-		session_start();
-		$mysqli = new mysqli('localhost', 'webuser', 'webuserpass', 'newspage');
-
+session_start();
+$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 		if ($mysqli->connect_errno){
 			printf("Connection Failed: %s\n", $mysqli->connect_error);
 			exit;
@@ -65,14 +64,14 @@
 					exit;
 				}
 
-				$stmt3->execute();
+$stmt3->execute();
+$stmt3->bind_result($userid);
 
-				$stmt3->bind_result($userid);
-				$stmt3->close();
-				$_SESSION['userid'] = $userid;
-				$_SESSION['username'] = $username;
-				header("Location: mainPage.php");
-
+$stmt3->fetch();
+	$_SESSION['userid'] = $userid;
+	$_SESSION['username'] = $username;
+	header("Location: mainPage.php");
+$stmt3->close();
 
 			}
 			else{//user has already signed up

@@ -11,7 +11,7 @@
 <body>
 <?php
 session_start();
-if(isset($_SESSION['username'])){
+if(isset($_SESSION['username'])){//if the user is login give them options to create a story or logout
 	$username = $_SESSION['username'];
 
 	echo "
@@ -63,14 +63,16 @@ else{
 	";
 	
 }
+//open mysql session
+$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
-$mysqli = new mysqli('localhost', 'webuser', 'webuserpass', 'newspage');
 
 if($mysqli->connect_errno){
 	print("CONNECTION ERROR YOU FAILURE!");
 	exit;
 } 
 
+//set the creator to know what they can edit / delete
 if(isset($_SESSION['userid'])){
 	$crntcreator=$_SESSION['userid'];
 }
@@ -83,6 +85,7 @@ $creators;
 $names;
 $votes;
 
+//get the stories
 $stmt = $mysqli->prepare("select story_id, story_title, creator_id, creator_name, votes from stories order by votes desc");
 if(!$stmt){
 	printf("Query Prep Failed: %s\n", $mysqli->error);
@@ -93,6 +96,8 @@ $stmt->execute();
  
 $stmt->bind_result($ids, $stories, $creators, $names, $votes);
 echo "<div class = \"container-fluid\">"; 
+ 
+//display the stories
 echo "<ul>\n";
 while($stmt->fetch()){
 	echo "<div class = \"row\" >";
