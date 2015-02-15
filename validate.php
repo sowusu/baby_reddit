@@ -13,7 +13,7 @@
 include 'hashpassword.php';
 
 session_start();
-$mysqli = new mysqli('localhost', 'webuser', 'webuserpass', 'newspage');
+$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 if ($mysqli->connect_errno){
 	printf("Connection Failed: %s\n", $mysqli->connect_error);
@@ -67,10 +67,11 @@ if (!$stmt3){
 $stmt3->execute();
 
 $stmt3->bind_result($userid);
-$stmt3->close();
+$stmt3->fetch();
 	$_SESSION['userid'] = $userid;
 	$_SESSION['username'] = $username;
 	header("Location: mainPage.php");
+$stmt3->close();
 
 
 }

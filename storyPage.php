@@ -3,11 +3,18 @@
 <head>
         <title> Read the Story! </title>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+	<style type="text/css">
+	body {
+			background-image: url("book.png");
+			background-size: 100%;
+			color: #CF5300;
+	}
+	</style>
 </head>
 <body>
 <?php
 session_start();
-if(isset($_SESSION['username'])){
+if(isset($_SESSION['username'])){//if the user is signed in we give them the optinon to sign out
 	$username = $_SESSION['username'];
 	$userid=$_SESSION['userid'];
 	echo "<form action=\"logout.php\">";
@@ -15,19 +22,20 @@ if(isset($_SESSION['username'])){
 	echo "</form>";
 }
 //<!-- Sign In/Sign Up Button -->
-else{
+else{//otherwise they get the option to sign in
 	$userid = 0;
-	echo "<form action=\"signin.php\">";
+	echo "<form action=\"login.html\">";
 	echo         "<input type=\"submit\" name=\"signin\" value=\"Sign In / Sign Up\">";
 	echo "</form>";
 }
 
-
+//go back to reading other storied button
 echo "<form action=\"mainPage.php\">";
 echo         "<input type=\"submit\" name=\"home\" value=\"Back to Stories\">";
 echo "</form>";
 
 
+//begin mysql session
 $mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 if($mysqli->connect_errno){
@@ -35,6 +43,7 @@ if($mysqli->connect_errno){
 	exit;
 } 
 
+//check which story we are opening
 if(isset($_GET['storyid'])){
 	$crntstry = $_GET['storyid'];
 }
@@ -51,6 +60,7 @@ $link;
 $content;
 $id;
 
+//get the content of the story
 $stmt1 = $mysqli->prepare("select story_link, story_content, story_id from stories order by story_id");
 
 
@@ -77,6 +87,7 @@ while($stmt1->fetch()){
  
 $stmt1->close();
 
+//give option to write a comment if the user is logged in
 if(isset($_SESSION['username'])){
 	echo "<form action=\"createComment.php\">";
 	echo "<input type=\"text\" name=\"comment\">";
@@ -98,6 +109,7 @@ $creators;
 $names;
 $votes;
 
+//load comments for story
 $stmt2 = $mysqli->prepare("select comment_id, comment_content, story_id, creator_id, creator_name, votes from comments order by votes desc");
 
 if(!$stmt2){
@@ -141,20 +153,6 @@ while($stmt2->fetch()){
 echo "</ul>\n";
  
 $stmt2->close();
-
-//
-//
-//Sign In button / create account button
-//
-//Submit new text story;
-//
-//Submit link to story
-//
-//for(story #x to x+10){
-//	Print href to storypage
-//}
-//
-//
 ?>
 </body>
 </html>
