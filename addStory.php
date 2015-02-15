@@ -2,7 +2,7 @@
 session_start();
 $username = $_SESSION['username'];
 
-$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
+$mysqli = new mysqli('localhost', 'webuser', 'webuserpass', 'newspage');
 
 if($mysqli->connect_errno){
 	print("CONNECTION ERROR YOU FAILURE!");

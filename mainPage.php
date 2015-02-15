@@ -3,27 +3,68 @@
 <head>
         <title> Stories!!! :) </title>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Bootstrap -->
+    	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    	<link href="mainPage.css" rel="stylesheet" media="screen">
 </head>
 <body>
 <?php
 session_start();
 if(isset($_SESSION['username'])){
 	$username = $_SESSION['username'];
-	echo "<form action=\"logout.php\">";
-        echo         "<input type=\"submit\" name=\"logout\" value=\"Logout\">";
-        echo "</form>";
-	echo "<form action=\"createStory.php\">";
-	echo         "<input type=\"submit\" name=\"mkstry\" value=\"Submit A New Story!\">";
-	echo "</form>";
+
+	echo "
+		<div class=\"container\">
+
+      <div class=\"masthead\">
+        <h3 class=\"muted\">". $username ."'s Profile</h3>
+        <div class=\"navbar\">
+          <div class=\"navbar-inner\">
+            <div class=\"container\">
+              <ul class=\"nav\">
+                <li class=\"active\"><a href=\"#\">MainPage</a></li>
+                <li><a href=\"logout.php\">Logout</a></li>
+              </ul>
+            </div>
+          </div>
+        </div><!-- /.navbar -->
+      </div>
+
+
+
+	";
+
+    echo "<p><a class = \"btn\" href = \"createStory.php\"> Add Story</a></p>";
+    
 }
 //<!-- Sign In/Sign Up Button -->
 else{
-	echo "<form action=\"signin.php\">";
-	echo         "<input type=\"submit\" name=\"signin\" value=\"Sign In / Sign Up\">";
-	echo "</form>";
+	echo "
+		<div class=\"container\">
+
+      <div class=\"masthead\">
+        <h3 class=\"muted\"></h3>
+        <div class=\"navbar\">
+          <div class=\"navbar-inner\">
+            <div class=\"container\">
+              <ul class=\"nav\">
+                <li class=\"active\"><a href=\"#\">MainPage</a></li>
+                <li><a href=\"login.html\">SIGNUP</a></li>
+                <li><a href=\"login.html\">SIGNIN</a></li>
+              </ul>
+            </div>
+          </div>
+        </div><!-- /.navbar -->
+      </div>
+
+
+
+	";
+	
 }
 
-$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
+$mysqli = new mysqli('localhost', 'webuser', 'webuserpass', 'newspage');
 
 if($mysqli->connect_errno){
 	print("CONNECTION ERROR YOU FAILURE!");
@@ -51,28 +92,43 @@ if(!$stmt){
 $stmt->execute();
  
 $stmt->bind_result($ids, $stories, $creators, $names, $votes);
- 
+echo "<div class = \"container-fluid\">"; 
 echo "<ul>\n";
 while($stmt->fetch()){
-	echo "<form action=\"storyPage.php\" method=\"GET\">";
-	printf("\t<li><label>[VOTES: %s]</label><input type=\"hidden\" name=\"storyid\" value=\"%s\"><input type = \"submit\" value=\"%s\">",
+	echo "<div class = \"row\" >";
+	echo "<form class = \"form-horizontal\" action=\"storyPage.php\" method=\"GET\">";
+	echo "<div class = \"form-group\" >";
+	printf("<label class = \"col-sm-2 control-label\">[VOTES: %s]</label><input type=\"hidden\" name=\"storyid\" value=\"%s\">
+		<div class = \"col-sm-10\">
+		<p class = \"form-control-static\">%s</p>
+		<p style = \"text-align: right; \">--by %s</p>
+		
+		<input type = \"submit\" value=\"Open Story\">
+		
+		</div>",
 	htmlspecialchars($votes),
 	htmlspecialchars($ids), 
-	htmlspecialchars($stories));
+	htmlspecialchars($stories),
+	htmlspecialchars($names));
+	echo "</div>";
+	echo "<div class = \"form-group\" >";
 	echo "<input type=\"submit\" value=\"Upvote\" formaction=\"upvote.php\">";
 	echo "<input type=\"submit\" value=\"Downvote\" formaction=\"downvote.php\">";
-	echo "--by ".htmlspecialchars($names);
+	
 	if(htmlspecialchars($creators)==$crntcreator){
+
 		printf("\t<input type=\"hidden\" name=\"storyid\" value=\"%s\"><input type = \"submit\" value=\"Delete\" formaction=\"deleteStory.php\">\n",
 		htmlspecialchars($ids));
 		printf("\t<input type=\"hidden\" name=\"storyid\" value=\"%s\"><input type = \"submit\" value=\"Edit\" formaction=\"editStory.php\">\n",
 		htmlspecialchars($ids));
 	}
+	echo "</div>";
 	echo "</form>";
-	echo "</li>";
+	
+	echo "</div>";
 }
 echo "</ul>\n";
- 
+echo "</div>";
 $stmt->close();
 
 //
@@ -89,5 +145,8 @@ $stmt->close();
 //
 //
 ?>
+	<script src="http://code.jquery.com/jquery.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+
 </body>
 </html>
