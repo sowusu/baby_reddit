@@ -1,59 +1,54 @@
 <?php
-session_start();
-$username = $_SESSION['username'];
+	session_start();
+	$username = $_SESSION['username'];
+	//CHECK CSRF TOKEN
+	if($_SESSION['token'] !== $_POST['token']){
+		die("Request forgery detected");
+	}
 
+	$mysqli = new mysqli('localhost', 'webuser', 'webuserpass', 'newspage');
 
-//initialize mysql connection
-$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
+	if($mysqli->connect_errno){
+		print("CONNECTION ERROR YOU FAILURE!");
+		exit;
+	} 
 
-if($mysqli->connect_errno){
-	print("CONNECTION ERROR YOU FAILURE!");
-	exit;
-} 
+	if(!empty($_POST['storyname'])){
+		$storyname=$_POST['storyname'];
+	}
+	else{
+		header('Location: ./mainPage.php');
+		die();
+	}
+	if(!empty($_POST['storylink'])){
+		$storylink=$_POST['storylink'];
+	}
+	else{
+		$storylink=null;
+	}
+	if(!empty($_POST['storycontent'])){
+		$storycontent=$_POST['storycontent'];
+	}
+	else{
+		$storycontent=null;
+	}
 
-//get the associated story name if the user entered it
-if(!empty($_GET['storyname'])){
-	$storyname=$_GET['storyname'];
-}
-else{//if they didnt give a story name, we do not allow the story to be made
+	//temp until we get users table
+	$creator_id = $_SESSION['userid'];
+
+	$stmt = $mysqli->prepare("insert into stories (story_title, story_link, story_content, creator_id, creator_name) values (?, ?, ?, ?, ?)");
+	if(!$stmt){
+		printf("Query Prep Failed: %s\n", $mysqli->error);
+		exit;
+	}
+
+	$stmt->bind_param('sssis', $storyname, $storylink, $storycontent, $creator_id, $username);
+	 
+	$stmt->execute();
+	 
+	$stmt->close();
+
 	header('Location: ./mainPage.php');
 	die();
-}
-//get link to story if there is one
-if(!empty($_GET['storylink'])){
-	$storylink=$_GET['storylink'];
-}
-else{
-	$storylink=null;
-}
-//get conetnt of story if there is some
-if(!empty($_GET['storycontent'])){
-	$storycontent=$_GET['storycontent'];
-}
-else{
-	$storycontent=null;
-}
-
-$cat = $_GET['category'];
-
-//identify the person creating this story.
-$creator_id = $_SESSION['userid'];
-
-//put information in sql table.
-$stmt = $mysqli->prepare("insert into stories (story_title, story_link, story_content, creator_id, creator_name, category) values (?, ?, ?, ?, ?, ?)");
-if(!$stmt){
-	printf("Query Prep Failed: %s\n", $mysqli->error);
-	exit;
-}
-
-$stmt->bind_param('sssiss', $storyname, $storylink, $storycontent, $creator_id, $username, $cat);
- 
-$stmt->execute();
- 
-$stmt->close();
-
-//return the user to looking at stories
-header('Location: ./mainPage.php');
-die();
 
 ?>

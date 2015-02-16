@@ -11,7 +11,11 @@
 <body>
 <?php
 session_start();
-if(isset($_SESSION['username'])){//if the user is login give them options to create a story or logout
+//CHECK CSRF TOKEN
+if($_SESSION['token'] !== $_POST['token']){
+	die("Request forgery detected");
+}
+if(isset($_SESSION['username'])){
 	$username = $_SESSION['username'];
 
 	echo "
@@ -23,12 +27,7 @@ if(isset($_SESSION['username'])){//if the user is login give them options to cre
           <div class=\"navbar-inner\">
             <div class=\"container\">
               <ul class=\"nav\">
-                <li class=\"active\"><a href=\"#\">Front</a></li>
-                <li><a href=\"sports.php\">Sports</a></li>
-                <li><a href=\"morbid.php\">Morbid</a></li>
-                <li><a href=\"music.php\">Music</a></li>
-                <li><a href=\"funny.php\">Funny</a></li>
-                <li><a href=\"news.php\">News</a></li>
+                <li class=\"active\"><a href=\"#\">MainPage</a></li>
                 <li><a href=\"logout.php\">Logout</a></li>
               </ul>
             </div>
@@ -44,7 +43,7 @@ if(isset($_SESSION['username'])){//if the user is login give them options to cre
     
 }
 //<!-- Sign In/Sign Up Button -->
-else if(!isset($_SESSION['attempts'])){
+else{
 	echo "
 		<div class=\"container\">
 
@@ -54,12 +53,7 @@ else if(!isset($_SESSION['attempts'])){
           <div class=\"navbar-inner\">
             <div class=\"container\">
               <ul class=\"nav\">
-                <li class=\"active\"><a href=\"#\">Front</a></li>
-                <li><a href=\"sports.php\">Sports</a></li>
-                <li><a href=\"morbid.php\">Morbid</a></li>
-                <li><a href=\"music.php\">Music</a></li>
-                <li><a href=\"funny.php\">Funny</a></li>
-                <li><a href=\"news.php\">News</a></li>
+                <li class=\"active\"><a href=\"#\">MainPage</a></li>
                 <li><a href=\"login.html\">SIGNUP</a></li>
                 <li><a href=\"login.html\">SIGNIN</a></li>
               </ul>
@@ -73,45 +67,14 @@ else if(!isset($_SESSION['attempts'])){
 	";
 	
 }
-else{
-	echo "
-		<div class=\"container\">
 
-      <div class=\"masthead\">
-        <h3 class=\"muted\"></h3>
-        <div class=\"navbar\">
-          <div class=\"navbar-inner\">
-            <div class=\"container\">
-              <ul class=\"nav\">
-                <li class=\"active\"><a href=\"#\">Front</a></li>
-                <li><a href=\"sports.php\">Sports</a></li>
-                <li><a href=\"morbid.php\">Morbid</a></li>
-                <li><a href=\"music.php\">Music</a></li>
-                <li><a href=\"funny.php\">Funny</a></li>
-                <li><a href=\"news.php\">News</a></li>
-              </ul>
-            </div>
-          </div>
-        </div><!-- /.navbar -->
-      </div>
-
-
-
-	";
-	if(isset($_SESSION['attempts'])){
-		unset($_SESSION['attempts']);
-	}
-}
-//open mysql session
-$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
-
+$mysqli = new mysqli('localhost', 'webuser', 'webuserpass', 'newspage');
 
 if($mysqli->connect_errno){
 	print("CONNECTION ERROR YOU FAILURE!");
 	exit;
 } 
 
-//set the creator to know what they can edit / delete
 if(isset($_SESSION['userid'])){
 	$crntcreator=$_SESSION['userid'];
 }
@@ -124,8 +87,7 @@ $creators;
 $names;
 $votes;
 
-//get the stories
-$stmt = $mysqli->prepare("select story_id, story_title, creator_id, users.username, votes from stories join users on (users.id=creator_id) order by votes desc");
+$stmt = $mysqli->prepare("select story_id, story_title, creator_id, creator_name, votes from stories order by votes desc");
 if(!$stmt){
 	printf("Query Prep Failed: %s\n", $mysqli->error);
 	exit;
@@ -135,12 +97,10 @@ $stmt->execute();
  
 $stmt->bind_result($ids, $stories, $creators, $names, $votes);
 echo "<div class = \"container-fluid\">"; 
- 
-//display the stories
 echo "<ul>\n";
 while($stmt->fetch()){
 	echo "<div class = \"row\" >";
-	echo "<form class = \"form-horizontal\" action=\"storyPage.php\" method=\"GET\">";
+	echo "<form class = \"form-horizontal\" action=\"storyPage.php\" method = \"POST\">";
 	echo "<div class = \"form-group\" >";
 	printf("<label class = \"col-sm-2 control-label\">[VOTES: %s]</label><input type=\"hidden\" name=\"storyid\" value=\"%s\">
 		<div class = \"col-sm-10\">
@@ -158,7 +118,7 @@ while($stmt->fetch()){
 	echo "<div class = \"form-group\" >";
 	echo "<input type=\"submit\" value=\"Upvote\" formaction=\"upvote.php\">";
 	echo "<input type=\"submit\" value=\"Downvote\" formaction=\"downvote.php\">";
-	
+	echo "<input type=\"hidden\" name=\"token\" value=\"<?php echo $_SESSION\[\'token\'\];?>\" />"
 	if(htmlspecialchars($creators)==$crntcreator){
 
 		printf("\t<input type=\"hidden\" name=\"storyid\" value=\"%s\"><input type = \"submit\" value=\"Delete\" formaction=\"deleteStory.php\">\n",

@@ -12,8 +12,9 @@
 	<?php
 		include 'hashpassword.php';
 
-session_start();
-$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
+		session_start();
+		$mysqli = new mysqli('localhost', 'webuser', 'webuserpass', 'newspage');
+
 		if ($mysqli->connect_errno){
 			printf("Connection Failed: %s\n", $mysqli->connect_error);
 			exit;
@@ -64,14 +65,16 @@ $mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 					exit;
 				}
 
-$stmt3->execute();
-$stmt3->bind_result($userid);
+				$stmt3->execute();
 
-$stmt3->fetch();
-	$_SESSION['userid'] = $userid;
-	$_SESSION['username'] = $username;
-	header("Location: mainPage.php");
-$stmt3->close();
+				$stmt3->bind_result($userid);
+				$stmt3->close();
+				//authentication on signup
+				$_SESSION['userid'] = $userid;
+				$_SESSION['username'] = $username;
+				$_SESSION['token'] = substr(md5(rand()), 0, 10);	//CSRF token for preventing attacks
+				header("Location: mainPage.php");
+
 
 			}
 			else{//user has already signed up
@@ -121,11 +124,8 @@ $stmt3->close();
 						{
 							//if we exceed number of login attempts, go back to main page with noone signed in.
 							$_SESSION['tries'] = 1;
-							unset($_SESSION['username']);
-							unset($_SESSION['userid']);
-							$_SESSION['attempts'] = false;
-							header("Location: mainPage.php");	
-							//echo "wrongpass attmepts out of range";
+							//header("Location: mainPage.php");	
+							echo "wrongpass attmepts out of range";
 				
 						}
 						else
@@ -147,10 +147,11 @@ $stmt3->close();
 				
 				else
 				{
-					//access granted
+					//authentication on login
 					$_SESSION['tries'] = 0;
 					$_SESSION['userid'] = $userid;
 					$_SESSION['username'] = $username;
+					$_SESSION['token'] = substr(md5(rand()), 0, 10);	//CSRF token for preventing attacks
 					header("Location: mainPage.php");
 					//echo "access granted";	
 

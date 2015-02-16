@@ -1,40 +1,41 @@
 <?php
-session_start();
-$username = $_SESSION['username'];
+	session_start();
+	$username = $_SESSION['username'];
+	//CHECK CSRF TOKEN
+	if($_SESSION['token'] !== $_POST['token']){
+		die("Request forgery detected");
+	}
 
-//beign mysql session
-$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
+	$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
-if($mysqli->connect_errno){
-	print("CONNECTION ERROR YOU FAILURE!");
-	exit;
-} 
+	if($mysqli->connect_errno){
+		print("CONNECTION ERROR YOU FAILURE!");
+		exit;
+	} 
 
-//get the comment that we are adding
-if(isset($_GET['comment'])){
-	$comment=$_GET['comment'];
-}
-$id=$_GET['storyid'];
+	if(isset($_POST['comment'])){
+		$comment=$_POST['comment'];
+	}
+	$id=$_POST['storyid'];
 
-//get the user adding the comment
-$creator_id = $_SESSION['userid'];
+	//temp until we get users table
+	$creator_id = $_SESSION['userid'];
 
-$stmt = $mysqli->prepare("insert into comments (comment_content, story_id, creator_id, creator_name) values (?, ?, ?, ?)");
-if(!$stmt){
-	printf("Query Prep Failed: %s\n", $mysqli->error);
-	exit;
-}
+	$stmt = $mysqli->prepare("insert into comments (comment_content, story_id, creator_id, creator_name) values (?, ?, ?, ?)");
+	if(!$stmt){
+		printf("Query Prep Failed: %s\n", $mysqli->error);
+		exit;
+	}
 
-$stmt->bind_param('siis', $comment, $id, $creator_id, $username);
- 
-$stmt->execute();
- 
-$stmt->close();
+	$stmt->bind_param('siis', $comment, $id, $creator_id, $username);
+	 
+	$stmt->execute();
+	 
+	$stmt->close();
 
-//return them to the proper storypage
-$_SESSION['storyid'] = $id;
+	$_SESSION['storyid'] = $id;
 
-header('Location: ./storyPage.php');
-die();
+	header('Location: ./storyPage.php');
+	die();
 
 ?>

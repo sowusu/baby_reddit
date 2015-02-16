@@ -1,9 +1,9 @@
 <?php
 session_start();
-unset($_SESSION['userid']);//unset the user's id
-unset($_SESSION['username']);//unset the users password
+unset($_SESSION['userid']);
+unset($_SESSION['username']);
+unset($_SESSION['token']);
 
-//go to main story page
 header('Location: ./mainPage.php');
 die();
 

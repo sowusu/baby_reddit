@@ -11,6 +11,10 @@
 <body>
 <?php
 session_start();
+//CHECK CSRF TOKEN
+if($_SESSION['token'] !== $_POST['token']){
+  die("Request forgery detected");
+}
 if(isset($_SESSION['username'])){//if the user is login give them options to create a story or logout
 	$username = $_SESSION['username'];
 
@@ -140,7 +144,7 @@ echo "<div class = \"container-fluid\">";
 echo "<ul>\n";
 while($stmt->fetch()){
 	echo "<div class = \"row\" >";
-	echo "<form class = \"form-horizontal\" action=\"storyPage.php\" method=\"GET\">";
+	echo "<form class = \"form-horizontal\" action=\"storyPage.php\" method = \"POST\">";
 	echo "<div class = \"form-group\" >";
 	printf("<label class = \"col-sm-2 control-label\">[VOTES: %s]</label><input type=\"hidden\" name=\"storyid\" value=\"%s\">
 		<div class = \"col-sm-10\">
@@ -155,10 +159,10 @@ while($stmt->fetch()){
 	htmlspecialchars($stories),
 	htmlspecialchars($names));
 	echo "</div>";
-	echo "<div class = \"form-group\" >";
+	echo "<div class = \"form-group\" method = \"POST\">";
 	echo "<input type=\"submit\" value=\"Upvote\" formaction=\"upvote.php\">";
 	echo "<input type=\"submit\" value=\"Downvote\" formaction=\"downvote.php\">";
-	
+	echo "<input type=\"hidden\" name=\"token\" value=\"<?php echo $_SESSION\[\'token\'\];?>\" />"
 	if(htmlspecialchars($creators)==$crntcreator){
 
 		printf("\t<input type=\"hidden\" name=\"storyid\" value=\"%s\"><input type = \"submit\" value=\"Delete\" formaction=\"deleteStory.php\">\n",
