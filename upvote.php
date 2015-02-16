@@ -1,12 +1,8 @@
 <?php
 session_start();
-//CHECK CSRF TOKEN
-if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
-        die("Request forgery detected");
-}
-
 $username = $_SESSION['username'];
 
+//open myswl session
 $mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 if($mysqli->connect_errno){
@@ -14,10 +10,11 @@ if($mysqli->connect_errno){
 	exit;
 } 
 
-if(isset($_POST['commentid'])){
+//if it is a comment then upvote it as a comment
+if(isset($_GET['commentid'])){
 
-	$commentid=$_POST['commentid'];
-	$storyid=$_POST['storyid'];
+	$commentid=$_GET['commentid'];
+	$storyid=$_GET['storyid'];
 
 	$stmt2 = $mysqli->query("update comments set votes=votes+1 WHERE comment_id=".$commentid);
 	if(!$stmt2){
@@ -31,9 +28,9 @@ if(isset($_POST['commentid'])){
 	die();
 
 }
-else{
+else{//otherwise upvote it as a story
 
-	$storyid=$_POST['storyid'];
+	$storyid=$_GET['storyid'];
 
 	$stmt2 = $mysqli->query("update stories set votes=votes+1 WHERE story_id=".$storyid);
 	if(!$stmt2){

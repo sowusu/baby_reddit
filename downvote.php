@@ -1,48 +1,50 @@
 <?php
-	session_start();
-	$username = $_SESSION['username'];
-	//CHECK CSRF TOKEN
-if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
-        die("Request forgery detected");
-}
-	
+session_start();
+$username = $_SESSION['username'];
+
+//start mysql connection
 $mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
-	if($mysqli->connect_errno){
-		print("CONNECTION ERROR YOU FAILURE!");
+if($mysqli->connect_errno){
+	print("CONNECTION ERROR YOU FAILURE!");
+	exit;
+} 
+
+//check if we are downvoting a comment or a story
+if(isset($_GET['commentid'])){
+
+	$commentid=$_GET['commentid'];
+	$storyid=$_GET['storyid'];
+
+	//downvote associated comment
+	$stmt2 = $mysqli->query("update comments set votes=votes-1 WHERE comment_id=".$commentid);
+	if(!$stmt2){
+		printf("Query Prep Failed: %s\n", $mysqli->error);
 		exit;
-	} 
-
-	if(isset($_POST['commentid'])){
-
-		$commentid=$_POST['commentid'];
-		$storyid=$_POST['storyid'];
-
-		$stmt2 = $mysqli->query("update comments set votes=votes-1 WHERE comment_id=".$commentid);
-		if(!$stmt2){
-			printf("Query Prep Failed: %s\n", $mysqli->error);
-			exit;
-		}
-
-		$_SESSION['storyid'] = $storyid;
-
-		header('Location: ./storyPage.php');
-		die();
-
 	}
-	else{
 
-		$storyid=$_POST['storyid'];
+	//return to proper story page
+	$_SESSION['storyid'] = $storyid;
 
-		$stmt2 = $mysqli->query("update stories set votes=votes-1 WHERE story_id=".$storyid);
-		if(!$stmt2){
-			printf("Query Prep Failed: %s\n", $mysqli->error);
-			exit;
-		}
+	header('Location: ./storyPage.php');
+	die();
 
-		header('Location: ./mainPage.php');
-		die();
+}
+else{
 
+	$storyid=$_GET['storyid'];
+	
+	//downvote associated story
+	$stmt2 = $mysqli->query("update stories set votes=votes-1 WHERE story_id=".$storyid);
+	if(!$stmt2){
+		printf("Query Prep Failed: %s\n", $mysqli->error);
+		exit;
 	}
+
+	//return to viewing stories
+	header('Location: ./mainPage.php');
+	die();
+
+}
 
 ?>

@@ -3,16 +3,18 @@
 <head>
         <title> Read the Story! </title>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+	<style type="text/css">
+	body {
+			background-image: url("book.png");
+			background-size: 100%;
+			color: #CF5300;
+	}
+	</style>
 </head>
 <body>
 <?php
 session_start();
-//CHECK CSRF TOKEN
-if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
-        die("Request forgery detected");
-}
-
-if(isset($_SESSION['username'])){
+if(isset($_SESSION['username'])){//if the user is signed in we give them the optinon to sign out
 	$username = $_SESSION['username'];
 	$userid=$_SESSION['userid'];
 	echo "<form action=\"logout.php\">";
@@ -20,19 +22,20 @@ if(isset($_SESSION['username'])){
 	echo "</form>";
 }
 //<!-- Sign In/Sign Up Button -->
-else{
+else{//otherwise they get the option to sign in
 	$userid = 0;
-	echo "<form action=\"signin.php\">";
+	echo "<form action=\"login.html\">";
 	echo         "<input type=\"submit\" name=\"signin\" value=\"Sign In / Sign Up\">";
 	echo "</form>";
 }
 
-
+//go back to reading other storied button
 echo "<form action=\"mainPage.php\">";
 echo         "<input type=\"submit\" name=\"home\" value=\"Back to Stories\">";
 echo "</form>";
 
 
+//begin mysql session
 $mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 if($mysqli->connect_errno){
@@ -40,8 +43,9 @@ if($mysqli->connect_errno){
 	exit;
 } 
 
-if(isset($_POST['storyid'])){
-	$crntstry = $_POST['storyid'];
+//check which story we are opening
+if(isset($_GET['storyid'])){
+	$crntstry = $_GET['storyid'];
 }
 else if(isset($_SESSION['storyid'])){
 	$crntstry = $_SESSION['storyid'];
@@ -56,6 +60,7 @@ $link;
 $content;
 $id;
 
+//get the content of the story
 $stmt1 = $mysqli->prepare("select story_link, story_content, story_id from stories order by story_id");
 
 
@@ -82,21 +87,18 @@ while($stmt1->fetch()){
  
 $stmt1->close();
 
+//give option to write a comment if the user is logged in
 if(isset($_SESSION['username'])){
-	echo "<form action=\"createComment.php\" method = \"POST\">";
+	echo "<form action=\"createComment.php\">";
 	echo "<input type=\"text\" name=\"comment\">";
 	printf("\t<input type=\"hidden\" value=\"%s\" name=\"storyid\">", $crntstry);
-if(isset($_SESSION['token'])){
-                echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
-        }
-	
 	echo "<input type=\"submit\" name=\"mkcmnt\" value=\"Share Your Opinion\">";
 	echo "</form>";
 }
 
 $editid = 0;
-if(isset($_POST['commentid'])){
-	$editid = $_POST['commentid'];
+if(isset($_GET['commentid'])){
+	$editid = $_GET['commentid'];
 }
 
 $creator_id = $userid;
@@ -107,7 +109,8 @@ $creators;
 $names;
 $votes;
 
-$stmt2 = $mysqli->prepare("select comment_id, comment_content, story_id, creator_id, creator_name, votes from comments order by votes desc");
+//load comments for story
+$stmt2 = $mysqli->prepare("select comment_id, comment_content, story_id, creator_id, users.username, votes from comments join users on (users.id=creator_id) order by votes desc");
 
 if(!$stmt2){
 	printf("Query Prep Failed: %s\n", $mysqli->error);
@@ -126,15 +129,11 @@ while($stmt2->fetch()){
 			htmlspecialchars($votes),
 			htmlspecialchars($comments));
 			echo " --by ".htmlspecialchars($names)."</li>";
-			echo "<form action=\"upvote.php\" method\"POST\">";
+			echo "<form action=\"upvote.php\" method\"get\">";
 			echo "<input type=\"hidden\" name=\"commentid\" value=".htmlspecialchars($cmntids).">";
 			echo "<input type=\"hidden\" name=\"storyid\" value=".htmlspecialchars($stryid).">";
 			echo "<input type=\"submit\" value=\"Upvote\" formaction=\"upvote.php\">";
-        	echo "<input type=\"submit\" value=\"Downvote\" formaction=\"downvote.php\">";
-if(isset($_SESSION['token'])){
-                echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
-        }
-        	
+        		echo "<input type=\"submit\" value=\"Downvote\" formaction=\"downvote.php\">";
 			if(htmlspecialchars($creators)==$creator_id){
 				echo "<input type=\"submit\" name=\"delete\" value=\"Delete\" formaction=\"deleteComment.php\">";
 				echo "<input type=\"submit\" name=\"edit\" value=\"Edit\" formaction=\"storyPage.php\">";
@@ -142,13 +141,10 @@ if(isset($_SESSION['token'])){
 			echo "</form>";
 		}
 		else{
-			echo "<form action=\"editComment.php\" method = \"POST\">";
+			echo "<form action=\"editComment.php\">";
 			echo "<input type=\"hidden\" name=\"commentid\" value=".htmlspecialchars($cmntids).">";
 			echo "<input type=\"hidden\" name=\"storyid\" value=".htmlspecialchars($stryid).">";
 			echo "<input type=\"text\" name=\"comment\" value=\"".htmlspecialchars($comments)."\">";
-			if(isset($_SESSION['token'])){
-                echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
-        }
 			echo "<input type=\"submit\" name=\"edit\" value=\"Submit Edit\">";
 			echo "</form>";
 		}
@@ -157,20 +153,6 @@ if(isset($_SESSION['token'])){
 echo "</ul>\n";
  
 $stmt2->close();
-
-//
-//
-//Sign In button / create account button
-//
-//Submit new text story;
-//
-//Submit link to story
-//
-//for(story #x to x+10){
-//	Print href to storypage
-//}
-//
-//
 ?>
 </body>
 </html>

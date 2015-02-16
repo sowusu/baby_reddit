@@ -1,13 +1,8 @@
 <?php
 session_start();
-//CHECK CSRF TOKEN
-if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
-        die("Request forgery detected");
-}
-
-
 $username = $_SESSION['username'];
 
+//begin mysql session
 $mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 if($mysqli->connect_errno){
@@ -15,35 +10,42 @@ if($mysqli->connect_errno){
 	exit;
 } 
 
-$storyid = $_POST['storyid'];
-if(!empty($_POST['storyname'])){
-	$storyname=$_POST['storyname'];
+//get the information about story
+$storyid = $_GET['storyid'];
+if(!empty($_GET['storyname'])){
+	$storyname=$_GET['storyname'];
 }
 else{
 	header('Location: ./mainPage.php');
 	die();
 }
-if(!empty($_POST['storylink'])){
-	$storylink=$_POST['storylink'];
+if(!empty($_GET['storylink'])){
+	$storylink=$_GET['storylink'];
 }
 else{
 	$storylink=null;
 }
-if(!empty($_POST['storycontent'])){
-	$storycontent=$_POST['storycontent'];
+if(!empty($_GET['storycontent'])){
+	$storycontent=$_GET['storycontent'];
 }
 else{
 	$storycontent=null;
 }
 
-//temp until we get users table
-$creator_id = $_SESSION['userid'];
+$cat = $_GET['category'];
 
-$stmt = $mysqli->query("update stories set story_title='".$storyname."', story_link='".$storylink."', story_content='".$storycontent."' where story_id=".$storyid);
+//update the story
+$stmt = $mysqli->prepare("update stories set story_title=?, story_link=?, story_content=?, category=? where story_id=".$storyid);
 if(!$stmt){
 	printf("Query Prep Failed: %s\n", $mysqli->error);
 	exit;
 }
+
+$stmt->bind_param('ssss', $storyname, $storylink, $storycontent, $cat);
+
+$stmt->execute();
+
+$stmt->close();
 
 header('Location: ./mainPage.php');
 die();

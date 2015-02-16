@@ -11,11 +11,7 @@
 <body>
 <?php
 session_start();
-//CHECK CSRF TOKEN
-if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
-	die("Request forgery detected");
-}
-if(isset($_SESSION['username'])){
+if(isset($_SESSION['username'])){//if the user is login give them options to create a story or logout
 	$username = $_SESSION['username'];
 
 	echo "
@@ -27,12 +23,12 @@ if(isset($_SESSION['username'])){
           <div class=\"navbar-inner\">
             <div class=\"container\">
               <ul class=\"nav\">
-                <li class=\"active\"><a href=\"mainPage.php\">Front</a></li>
-                    <li><a href=\"sports.php\">Sports</a></li>
-                    <li><a href=\"morbid.php\">Morbid</a></li>
-                    <li><a href=\"music.php\">Music</a></li>
-                    <li><a href=\"funny.php\">Funny</a></li>
-                    <li><a href=\"news.php\">News</a></li>
+                <li class=\"active\"><a href=\"#\">Front</a></li>
+                <li><a href=\"sports.php\">Sports</a></li>
+                <li><a href=\"morbid.php\">Morbid</a></li>
+                <li><a href=\"music.php\">Music</a></li>
+                <li><a href=\"funny.php\">Funny</a></li>
+                <li><a href=\"news.php\">News</a></li>
                 <li><a href=\"logout.php\">Logout</a></li>
               </ul>
             </div>
@@ -49,71 +45,73 @@ if(isset($_SESSION['username'])){
 }
 //<!-- Sign In/Sign Up Button -->
 else if(!isset($_SESSION['attempts'])){
-        echo "
-                <div class=\"container\">
+	echo "
+		<div class=\"container\">
 
-          <div class=\"masthead\">
-            <h3 class=\"muted\"></h3>
-            <div class=\"navbar\">
-              <div class=\"navbar-inner\">
-                <div class=\"container\">
-                  <ul class=\"nav\">
-                <li class=\"active\"><a href=\"mainPage.php\">Front</a></li>
-                    <li><a href=\"sports.php\">Sports</a></li>
-                    <li><a href=\"morbid.php\">Morbid</a></li>
-                    <li><a href=\"music.php\">Music</a></li>
-                    <li><a href=\"funny.php\">Funny</a></li>
-                    <li><a href=\"news.php\">News</a></li>
-                    <li><a href=\"login.html\">SIGNUP</a></li>
-                    <li><a href=\"login.html\">SIGNIN</a></li>
-                  </ul>
-                </div>
-              </div>
-            </div><!-- /.navbar -->
+      <div class=\"masthead\">
+        <h3 class=\"muted\"></h3>
+        <div class=\"navbar\">
+          <div class=\"navbar-inner\">
+            <div class=\"container\">
+              <ul class=\"nav\">
+                <li class=\"active\"><a href=\"#\">Front</a></li>
+                <li><a href=\"sports.php\">Sports</a></li>
+                <li><a href=\"morbid.php\">Morbid</a></li>
+                <li><a href=\"music.php\">Music</a></li>
+                <li><a href=\"funny.php\">Funny</a></li>
+                <li><a href=\"news.php\">News</a></li>
+                <li><a href=\"login.html\">SIGNUP</a></li>
+                <li><a href=\"login.html\">SIGNIN</a></li>
+              </ul>
+            </div>
           </div>
+        </div><!-- /.navbar -->
+      </div>
 
 
 
-        ";
-
-    }
+	";
+	
+}
 else{
-        echo "
-                <div class=\"container\">
+	echo "
+		<div class=\"container\">
 
-          <div class=\"masthead\">
-            <h3 class=\"muted\"></h3>
-            <div class=\"navbar\">
-              <div class=\"navbar-inner\">
-                <div class=\"container\">
-                  <ul class=\"nav\">
-                <li class=\"active\"><a href=\"mainPage.php\">Front</a></li>
-                    <li><a href=\"sports.php\">Sports</a></li>
-                    <li><a href=\"morbid.php\">Morbid</a></li>
-                    <li><a href=\"music.php\">Music</a></li>
-                    <li><a href=\"funny.php\">Funny</a></li>
-                    <li><a href=\"news.php\">News</a></li>
-                  </ul>
-                </div>
-              </div>
-            </div><!-- /.navbar -->
+      <div class=\"masthead\">
+        <h3 class=\"muted\"></h3>
+        <div class=\"navbar\">
+          <div class=\"navbar-inner\">
+            <div class=\"container\">
+              <ul class=\"nav\">
+                <li class=\"active\"><a href=\"#\">Front</a></li>
+                <li><a href=\"sports.php\">Sports</a></li>
+                <li><a href=\"morbid.php\">Morbid</a></li>
+                <li><a href=\"music.php\">Music</a></li>
+                <li><a href=\"funny.php\">Funny</a></li>
+                <li><a href=\"news.php\">News</a></li>
+              </ul>
+            </div>
           </div>
+        </div><!-- /.navbar -->
+      </div>
 
 
 
-        ";
-        if(isset($_SESSION['attempts'])){
-                unset($_SESSION['attempts']);
-        }
-    }
-
+	";
+	if(isset($_SESSION['attempts'])){
+		unset($_SESSION['attempts']);
+	}
+}
+//open mysql session
 $mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
+
 
 if($mysqli->connect_errno){
 	print("CONNECTION ERROR YOU FAILURE!");
 	exit;
 } 
 
+//set the creator to know what they can edit / delete
 if(isset($_SESSION['userid'])){
 	$crntcreator=$_SESSION['userid'];
 }
@@ -126,7 +124,8 @@ $creators;
 $names;
 $votes;
 
-$stmt = $mysqli->prepare("select story_id, story_title, creator_id, creator_name, votes from stories order by votes desc");
+//get the stories
+$stmt = $mysqli->prepare("select story_id, story_title, creator_id, users.username, votes from stories join users on (users.id=creator_id) order by votes desc");
 if(!$stmt){
 	printf("Query Prep Failed: %s\n", $mysqli->error);
 	exit;
@@ -136,10 +135,12 @@ $stmt->execute();
  
 $stmt->bind_result($ids, $stories, $creators, $names, $votes);
 echo "<div class = \"container-fluid\">"; 
+ 
+//display the stories
 echo "<ul>\n";
 while($stmt->fetch()){
 	echo "<div class = \"row\" >";
-	echo "<form class = \"form-horizontal\" action=\"storyPage.php\" method = \"POST\">";
+	echo "<form class = \"form-horizontal\" action=\"storyPage.php\" method=\"GET\">";
 	echo "<div class = \"form-group\" >";
 	printf("<label class = \"col-sm-2 control-label\">[VOTES: %s]</label><input type=\"hidden\" name=\"storyid\" value=\"%s\">
 		<div class = \"col-sm-10\">
@@ -157,9 +158,7 @@ while($stmt->fetch()){
 	echo "<div class = \"form-group\" >";
 	echo "<input type=\"submit\" value=\"Upvote\" formaction=\"upvote.php\">";
 	echo "<input type=\"submit\" value=\"Downvote\" formaction=\"downvote.php\">";
-	if(isset($_SESSION['token'])){
-		echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
-	}
+	
 	if(htmlspecialchars($creators)==$crntcreator){
 
 		printf("\t<input type=\"hidden\" name=\"storyid\" value=\"%s\"><input type = \"submit\" value=\"Delete\" formaction=\"deleteStory.php\">\n",

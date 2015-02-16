@@ -1,33 +1,34 @@
 <?php
-	session_start();
-	$username = $_SESSION['username'];
-	//CHECK CSRF TOKEN
-	if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
-        die("Request forgery detected");
+session_start();
+$username = $_SESSION['username'];
+
+//begin mysql session
+$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
+
+if($mysqli->connect_errno){
+	print("CONNECTION ERROR YOU FAILURE!");
+	exit;
+} 
+
+//get story to delete
+$storyid=$_GET['storyid'];
+
+//delete story comments
+$stmt2 = $mysqli->query("DELETE from comments WHERE story_id=".$storyid);
+if(!$stmt2){
+	printf("Query Prep Failed: %s\n", $mysqli->error);
+	exit;
 }
-	$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
-	if($mysqli->connect_errno){
-		print("CONNECTION ERROR YOU FAILURE!");
-		exit;
-	} 
+//delete story
+$stmt = $mysqli->query("DELETE from stories WHERE story_id=".$storyid);
+if(!$stmt){
+	printf("Query Prep Failed: %s\n", $mysqli->error);
+	exit;
+}
 
-	$storyid=$_POST['storyid'];
-
-	$stmt2 = $mysqli->query("DELETE from comments WHERE story_id=".$storyid);
-	if(!$stmt2){
-		printf("Query Prep Failed: %s\n", $mysqli->error);
-		exit;
-	}
-
-
-	$stmt = $mysqli->query("DELETE from stories WHERE story_id=".$storyid);
-	if(!$stmt){
-		printf("Query Prep Failed: %s\n", $mysqli->error);
-		exit;
-	}
-
-	header('Location: ./mainPage.php');
-	die();
+//return to viewing stories
+header('Location: ./mainPage.php');
+die();
 
 ?>

@@ -1,32 +1,37 @@
 <?php
-	session_start();
-	$username = $_SESSION['username'];
-	//CHECK CSRF TOKEN
-if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
-        die("Request forgery detected");
+session_start();
+$username = $_SESSION['username'];
+
+//open mysql session
+$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
+
+if($mysqli->connect_errno){
+	print("CONNECTION ERROR YOU FAILURE!");
+	exit;
+} 
+
+//get comment we are editing and story it is coming from
+$storyid=$_GET['storyid'];
+$commentid=$_GET['commentid'];
+$comment=$_GET['comment'];
+
+//update the comment
+$stmt = $mysqli->prepare("update comments set comment_content=? where comment_id=".$commentid);
+if(!$stmt){
+	printf("Query Prep Failed: %s\n", $mysqli->error);
+	exit;
 }
 
+$stmt->bind_param('s', $comment);
 
-	$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
+$stmt->execute();
 
-	if($mysqli->connect_errno){
-		print("CONNECTION ERROR YOU FAILURE!");
-		exit;
-	} 
+$stmt->close();
 
-	$storyid=$_POST['storyid'];
-	$commentid=$_POST['commentid'];
-	$comment=$_POST['comment'];
+//return to proper story
+$_SESSION['storyid'] = $storyid;
 
-	$stmt = $mysqli->query("update comments set comment_content='".$comment."' where comment_id=".$commentid);
-	if(!$stmt){
-		printf("Query Prep Failed: %s\n", $mysqli->error);
-		exit;
-	}
-
-	$_SESSION['storyid'] = $storyid;
-
-	header('Location: ./storyPage.php');
-	die();
+header('Location: ./storyPage.php');
+die();
 
 ?>
