@@ -121,8 +121,11 @@ $stmt3->close();
 						{
 							//if we exceed number of login attempts, go back to main page with noone signed in.
 							$_SESSION['tries'] = 1;
-							//header("Location: mainPage.php");	
-							echo "wrongpass attmepts out of range";
+							unset($_SESSION['username']);
+							unset($_SESSION['userid']);
+							$_SESSION['attempts'] = false;
+							header("Location: mainPage.php");	
+							//echo "wrongpass attmepts out of range";
 				
 						}
 						else

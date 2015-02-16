@@ -34,17 +34,19 @@ else{
 	$storycontent=null;
 }
 
+$cat = $_GET['category'];
+
 //identify the person creating this story.
 $creator_id = $_SESSION['userid'];
 
 //put information in sql table.
-$stmt = $mysqli->prepare("insert into stories (story_title, story_link, story_content, creator_id, creator_name) values (?, ?, ?, ?, ?)");
+$stmt = $mysqli->prepare("insert into stories (story_title, story_link, story_content, creator_id, creator_name, category) values (?, ?, ?, ?, ?, ?)");
 if(!$stmt){
 	printf("Query Prep Failed: %s\n", $mysqli->error);
 	exit;
 }
 
-$stmt->bind_param('sssis', $storyname, $storylink, $storycontent, $creator_id, $username);
+$stmt->bind_param('sssiss', $storyname, $storylink, $storycontent, $creator_id, $username, $cat);
  
 $stmt->execute();
  

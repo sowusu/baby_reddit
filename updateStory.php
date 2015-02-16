@@ -32,14 +32,16 @@ else{
 	$storycontent=null;
 }
 
+$cat = $_GET['category'];
+
 //update the story
-$stmt = $mysqli->prepare("update stories set story_title=?, story_link=?, story_content=? where story_id=".$storyid);
+$stmt = $mysqli->prepare("update stories set story_title=?, story_link=?, story_content=?, category=? where story_id=".$storyid);
 if(!$stmt){
 	printf("Query Prep Failed: %s\n", $mysqli->error);
 	exit;
 }
 
-$stmt->bind_param('sss', $storyname, $storylink, $storycontent);
+$stmt->bind_param('ssss', $storyname, $storylink, $storycontent, $cat);
 
 $stmt->execute();
 

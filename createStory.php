@@ -29,6 +29,13 @@ echo "Link associated content (Optional): ";
 echo "<input type=\"text\" name=\"storylink\"><br>";
 echo "Add some lively text to your story (Optional): ";
 echo "<input type=\"text\" name=\"storycontent\"><br>";
+echo "Choose a category (Optional): <br>";
+echo "<input type=\"radio\" name=\"category\" value=\"All\" checked>All<br>";
+echo "<input type=\"radio\" name=\"category\" value=\"Sports\">Sports<br>";
+echo "<input type=\"radio\" name=\"category\" value=\"Funny\">Funny<br>";
+echo "<input type=\"radio\" name=\"category\" value=\"Morbid\">Morbid<br>";
+echo "<input type=\"radio\" name=\"category\" value=\"News\">News<br>";
+echo "<input type=\"radio\" name=\"category\" value=\"Music\">Music<br>";
 echo "<input type=\"submit\" value=\"CREATE!\">";
 echo "</form>";
 ?>

@@ -23,10 +23,10 @@ if(isset($_SESSION['username'])){//if the user is login give them options to cre
           <div class=\"navbar-inner\">
             <div class=\"container\">
               <ul class=\"nav\">
-                <li class=\"active\"><a href=\"#\">Front</a></li>
+                <li><a href=\"mainPage.php\">Front</a></li>
                 <li><a href=\"sports.php\">Sports</a></li>
                 <li><a href=\"morbid.php\">Morbid</a></li>
-                <li><a href=\"music.php\">Music</a></li>
+                <li class=\"active\"><a href=\"music.php\">Music</a></li>
                 <li><a href=\"funny.php\">Funny</a></li>
                 <li><a href=\"news.php\">News</a></li>
                 <li><a href=\"logout.php\">Logout</a></li>
@@ -54,10 +54,10 @@ else if(!isset($_SESSION['attempts'])){
           <div class=\"navbar-inner\">
             <div class=\"container\">
               <ul class=\"nav\">
-                <li class=\"active\"><a href=\"#\">Front</a></li>
+                <li><a href=\"mainPage.php\">Front</a></li>
                 <li><a href=\"sports.php\">Sports</a></li>
                 <li><a href=\"morbid.php\">Morbid</a></li>
-                <li><a href=\"music.php\">Music</a></li>
+                <li class=\"active\"><a href=\"music.php\">Music</a></li>
                 <li><a href=\"funny.php\">Funny</a></li>
                 <li><a href=\"news.php\">News</a></li>
                 <li><a href=\"login.html\">SIGNUP</a></li>
@@ -83,10 +83,10 @@ else{
           <div class=\"navbar-inner\">
             <div class=\"container\">
               <ul class=\"nav\">
-                <li class=\"active\"><a href=\"#\">Front</a></li>
+                <li><a href=\"mainPage.php\">Front</a></li>
                 <li><a href=\"sports.php\">Sports</a></li>
                 <li><a href=\"morbid.php\">Morbid</a></li>
-                <li><a href=\"music.php\">Music</a></li>
+                <li class=\"active\"><a href=\"music.php\">Music</a></li>
                 <li><a href=\"funny.php\">Funny</a></li>
                 <li><a href=\"news.php\">News</a></li>
               </ul>
@@ -125,7 +125,7 @@ $names;
 $votes;
 
 //get the stories
-$stmt = $mysqli->prepare("select story_id, story_title, creator_id, users.username, votes from stories join users on (users.id=creator_id) order by votes desc");
+$stmt = $mysqli->prepare("select story_id, story_title, creator_id, users.username, votes from stories join users on (users.id=creator_id) where category='Music' order by votes desc");
 if(!$stmt){
 	printf("Query Prep Failed: %s\n", $mysqli->error);
 	exit;

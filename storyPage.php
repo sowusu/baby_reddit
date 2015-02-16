@@ -110,7 +110,7 @@ $names;
 $votes;
 
 //load comments for story
-$stmt2 = $mysqli->prepare("select comment_id, comment_content, story_id, creator_id, creator_name, votes from comments order by votes desc");
+$stmt2 = $mysqli->prepare("select comment_id, comment_content, story_id, creator_id, users.username, votes from comments join users on (users.id=creator_id) order by votes desc");
 
 if(!$stmt2){
 	printf("Query Prep Failed: %s\n", $mysqli->error);
