@@ -13,7 +13,7 @@
 		include 'hashpassword.php';
 
 		session_start();
-		$mysqli = new mysqli('localhost', 'webuser', 'webuserpass', 'newspage');
+		$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 		if ($mysqli->connect_errno){
 			printf("Connection Failed: %s\n", $mysqli->connect_error);

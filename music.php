@@ -12,8 +12,8 @@
 <?php
 session_start();
 //CHECK CSRF TOKEN
-if($_SESSION['token'] !== $_POST['token']){
-  die("Request forgery detected");
+if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
+        die("Request forgery detected");
 }
 if(isset($_SESSION['username'])){//if the user is login give them options to create a story or logout
 	$username = $_SESSION['username'];
@@ -162,7 +162,9 @@ while($stmt->fetch()){
 	echo "<div class = \"form-group\" >";
 	echo "<input type=\"submit\" value=\"Upvote\" formaction=\"upvote.php\">";
 	echo "<input type=\"submit\" value=\"Downvote\" formaction=\"downvote.php\">";
-	echo "<input type=\"hidden\" name=\"token\" value=\"<?php echo $_SESSION\[\'token\'\];?>\" />"
+	if(isset($_SESSION['token'])){
+                echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
+        }
 	if(htmlspecialchars($creators)==$crntcreator){
 
 		printf("\t<input type=\"hidden\" name=\"storyid\" value=\"%s\"><input type = \"submit\" value=\"Delete\" formaction=\"deleteStory.php\">\n",

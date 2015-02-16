@@ -8,9 +8,10 @@
 <?php
 session_start();
 //CHECK CSRF TOKEN
-if($_SESSION['token'] !== $_POST['token']){
-  die("Request forgery detected");
+if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
+        die("Request forgery detected");
 }
+
 if(isset($_SESSION['username'])){
 	$username = $_SESSION['username'];
 	$userid=$_SESSION['userid'];
@@ -85,7 +86,10 @@ if(isset($_SESSION['username'])){
 	echo "<form action=\"createComment.php\" method = \"POST\">";
 	echo "<input type=\"text\" name=\"comment\">";
 	printf("\t<input type=\"hidden\" value=\"%s\" name=\"storyid\">", $crntstry);
-	echo "<input type=\"hidden\" name=\"token\" value=\"<?php echo $_SESSION\[\'token\'\];?>\" />"
+if(isset($_SESSION['token'])){
+                echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
+        }
+	
 	echo "<input type=\"submit\" name=\"mkcmnt\" value=\"Share Your Opinion\">";
 	echo "</form>";
 }
@@ -127,7 +131,10 @@ while($stmt2->fetch()){
 			echo "<input type=\"hidden\" name=\"storyid\" value=".htmlspecialchars($stryid).">";
 			echo "<input type=\"submit\" value=\"Upvote\" formaction=\"upvote.php\">";
         	echo "<input type=\"submit\" value=\"Downvote\" formaction=\"downvote.php\">";
-        	echo "<input type=\"hidden\" name=\"token\" value=\"<?php echo $_SESSION\[\'token\'\];?>\" />"
+if(isset($_SESSION['token'])){
+                echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
+        }
+        	
 			if(htmlspecialchars($creators)==$creator_id){
 				echo "<input type=\"submit\" name=\"delete\" value=\"Delete\" formaction=\"deleteComment.php\">";
 				echo "<input type=\"submit\" name=\"edit\" value=\"Edit\" formaction=\"storyPage.php\">";
@@ -139,7 +146,9 @@ while($stmt2->fetch()){
 			echo "<input type=\"hidden\" name=\"commentid\" value=".htmlspecialchars($cmntids).">";
 			echo "<input type=\"hidden\" name=\"storyid\" value=".htmlspecialchars($stryid).">";
 			echo "<input type=\"text\" name=\"comment\" value=\"".htmlspecialchars($comments)."\">";
-			echo "<input type=\"hidden\" name=\"token\" value=\"<?php echo $_SESSION\[\'token\'\];?>\" />"
+			if(isset($_SESSION['token'])){
+                echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
+        }
 			echo "<input type=\"submit\" name=\"edit\" value=\"Submit Edit\">";
 			echo "</form>";
 		}

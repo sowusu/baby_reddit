@@ -12,7 +12,7 @@
 <?php
 session_start();
 //CHECK CSRF TOKEN
-if($_SESSION['token'] !== $_POST['token']){
+if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
 	die("Request forgery detected");
 }
 if(isset($_SESSION['username'])){
@@ -27,7 +27,12 @@ if(isset($_SESSION['username'])){
           <div class=\"navbar-inner\">
             <div class=\"container\">
               <ul class=\"nav\">
-                <li class=\"active\"><a href=\"#\">MainPage</a></li>
+                <li class=\"active\"><a href=\"mainPage.php\">Front</a></li>
+                    <li><a href=\"sports.php\">Sports</a></li>
+                    <li><a href=\"morbid.php\">Morbid</a></li>
+                    <li><a href=\"music.php\">Music</a></li>
+                    <li><a href=\"funny.php\">Funny</a></li>
+                    <li><a href=\"news.php\">News</a></li>
                 <li><a href=\"logout.php\">Logout</a></li>
               </ul>
             </div>
@@ -43,32 +48,66 @@ if(isset($_SESSION['username'])){
     
 }
 //<!-- Sign In/Sign Up Button -->
-else{
-	echo "
-		<div class=\"container\">
+else if(!isset($_SESSION['attempts'])){
+        echo "
+                <div class=\"container\">
 
-      <div class=\"masthead\">
-        <h3 class=\"muted\"></h3>
-        <div class=\"navbar\">
-          <div class=\"navbar-inner\">
-            <div class=\"container\">
-              <ul class=\"nav\">
-                <li class=\"active\"><a href=\"#\">MainPage</a></li>
-                <li><a href=\"login.html\">SIGNUP</a></li>
-                <li><a href=\"login.html\">SIGNIN</a></li>
-              </ul>
-            </div>
+          <div class=\"masthead\">
+            <h3 class=\"muted\"></h3>
+            <div class=\"navbar\">
+              <div class=\"navbar-inner\">
+                <div class=\"container\">
+                  <ul class=\"nav\">
+                <li class=\"active\"><a href=\"mainPage.php\">Front</a></li>
+                    <li><a href=\"sports.php\">Sports</a></li>
+                    <li><a href=\"morbid.php\">Morbid</a></li>
+                    <li><a href=\"music.php\">Music</a></li>
+                    <li><a href=\"funny.php\">Funny</a></li>
+                    <li><a href=\"news.php\">News</a></li>
+                    <li><a href=\"login.html\">SIGNUP</a></li>
+                    <li><a href=\"login.html\">SIGNIN</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div><!-- /.navbar -->
           </div>
-        </div><!-- /.navbar -->
-      </div>
 
 
 
-	";
-	
-}
+        ";
 
-$mysqli = new mysqli('localhost', 'webuser', 'webuserpass', 'newspage');
+    }
+else{
+        echo "
+                <div class=\"container\">
+
+          <div class=\"masthead\">
+            <h3 class=\"muted\"></h3>
+            <div class=\"navbar\">
+              <div class=\"navbar-inner\">
+                <div class=\"container\">
+                  <ul class=\"nav\">
+                <li class=\"active\"><a href=\"mainPage.php\">Front</a></li>
+                    <li><a href=\"sports.php\">Sports</a></li>
+                    <li><a href=\"morbid.php\">Morbid</a></li>
+                    <li><a href=\"music.php\">Music</a></li>
+                    <li><a href=\"funny.php\">Funny</a></li>
+                    <li><a href=\"news.php\">News</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div><!-- /.navbar -->
+          </div>
+
+
+
+        ";
+        if(isset($_SESSION['attempts'])){
+                unset($_SESSION['attempts']);
+        }
+    }
+
+$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 if($mysqli->connect_errno){
 	print("CONNECTION ERROR YOU FAILURE!");
@@ -118,7 +157,9 @@ while($stmt->fetch()){
 	echo "<div class = \"form-group\" >";
 	echo "<input type=\"submit\" value=\"Upvote\" formaction=\"upvote.php\">";
 	echo "<input type=\"submit\" value=\"Downvote\" formaction=\"downvote.php\">";
-	echo "<input type=\"hidden\" name=\"token\" value=\"<?php echo $_SESSION\[\'token\'\];?>\" />"
+	if(isset($_SESSION['token'])){
+		echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
+	}
 	if(htmlspecialchars($creators)==$crntcreator){
 
 		printf("\t<input type=\"hidden\" name=\"storyid\" value=\"%s\"><input type = \"submit\" value=\"Delete\" formaction=\"deleteStory.php\">\n",

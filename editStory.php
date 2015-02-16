@@ -9,10 +9,10 @@
 		session_start();
 		$username = $_SESSION['username'];
 		//CHECK CSRF TOKEN
-		if($_SESSION['token'] !== $_POST['token']){
-			die("Request forgery detected");
-		}
-		$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
+if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
+        die("Request forgery detected");
+}		
+$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 		if($mysqli->connect_errno){
 		        print("CONNECTION ERROR YOU FAILURE!");
@@ -52,7 +52,10 @@
 		echo "<input type=\"text\" name=\"storylink\" value=\"".htmlspecialchars($link)."\"><br>";
 		echo "Story Text (Optional): ";
 		echo "<input type=\"text\" name=\"storycontent\" value=\"".htmlspecialchars($content)."\"><br>";
-		echo "<input type=\"hidden\" name=\"token\" value=\"<?php echo $_SESSION\[\'token\'\];?>\" />"
+if(isset($_SESSION['token'])){
+                echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
+        }
+		
 		echo "<input type=\"submit\" value=\"Update\">";
 		echo "</form>";
 		$stmt->close();

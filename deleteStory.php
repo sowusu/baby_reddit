@@ -2,10 +2,9 @@
 	session_start();
 	$username = $_SESSION['username'];
 	//CHECK CSRF TOKEN
-	if($_SESSION['token'] !== $_POST['token']){
-		die("Request forgery detected");
-	}
-
+	if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
+        die("Request forgery detected");
+}
 	$mysqli = new mysqli('localhost', 'webuser', 'webpass', 'newspage');
 
 	if($mysqli->connect_errno){

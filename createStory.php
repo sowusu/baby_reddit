@@ -8,9 +8,9 @@
 		<?php
 			session_start();
 			//CHECK CSRF TOKEN
-			if($_SESSION['token'] !== $_POST['token']){
-				die("Request forgery detected");
-			}
+			if(isset($_SESSION['token']) && isset($_POST['token']) && ($_SESSION['token'] !== $_POST['token'])){
+        die("Request forgery detected");
+}
 			$username = $_SESSION['username'];
 			echo "<form action=\"logout.php\" >";
 			echo         "<input type=\"submit\" name=\"logout\" value=\"Logout\">";
@@ -25,7 +25,9 @@
 			echo "<input type=\"text\" name=\"storylink\"><br>";
 			echo "Add some lively text to your story (Optional): ";
 			echo "<input type=\"text\" name=\"storycontent\"><br>";
-			echo "<input type=\"hidden\" name=\"token\" value=\"<?php echo $_SESSION\[\'token\'\];?>\" />"
+			if(isset($_SESSION['token'])){
+                echo "<input type=\"hidden\" name=\"token\" value=\"".$_SESSION['token']."\" />";
+        }
 			echo "<input type=\"submit\" value=\"CREATE!\">";
 			echo "</form>";
 		?>
