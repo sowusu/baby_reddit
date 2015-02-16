@@ -1,0 +1,7 @@
+Hunter Wills hwills
+Nana Owusu nowusu
+
+http://ec2-54-148-70-188.us-west-2.compute.amazonaws.com/mod3grp/mainPage.php
+
+For our creative portion, we implemented a feature where if the user attempts to sign in too many time they are sent back to the mainPage without the ability to sign up again (unless they refresh the page). We also implemented a voting system where users and guests can vote on stories they like or dislike so the most popular stories are always shown first. Finally, we implemented a categories stystem where the viewers can look at can post their stories under various categories and then look at only stories posted to a specific category.
+
